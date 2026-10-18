@@ -62,3 +62,7 @@ export interface StatusHistory {
   synced?: number;
 }
 
+export interface WorkOrderSource {
+  fetchAll(): Promise<WorkOrder[]>;
+}
+
