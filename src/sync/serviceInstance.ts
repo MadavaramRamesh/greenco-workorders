@@ -35,3 +35,4 @@ export async function getSyncService(): Promise<SyncService> {
 export function setSyncService(service: SyncService | null): void {
   syncServiceInstance = service;
 }
+
