@@ -6,6 +6,7 @@ import {
   WorkOrderRepo,
 } from '../domain/types';
 import { SyncTransport } from './transport';
+import { dataEvents } from '../data/events';
 
 export interface SyncOptions {
   isOffline?: boolean;
@@ -138,6 +139,7 @@ export class SyncService {
 
       this._lastSyncedAt = new Date().toISOString();
       const remaining = await this.outboxRepo.count();
+      dataEvents.emit('all');
       return { accepted, duplicates, remaining };
     } finally {
       // 7. Always release lock

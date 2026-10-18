@@ -1,205 +1,231 @@
-import { useState } from 'react';
-import { Link, router } from 'expo-router';
-import { StyleSheet, Text, View, Pressable, ScrollView, ActivityIndicator } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import { Stack, router } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Priority, Status, WorkOrder } from '../src/domain/types';
 import { useTheme } from '../src/domain/theme';
-import { runDevSaveTest } from '../src/data/workOrderService';
+import { isOrderOverdue } from '../src/domain/urgency';
+import { useWorkOrders } from '../src/hooks/useWorkOrders';
+import {
+  EmptyState,
+  OfflineCapsule,
+  OrderRow,
+  PriorityFilterOption,
+  PriorityMenu,
+  SegmentedControl,
+  SummaryCard,
+} from '../src/ui';
+
+const STATUS_OPTIONS: readonly ('All' | Status)[] = [
+  'All',
+  'Open',
+  'In Progress',
+  'Completed',
+];
 
 export default function OverviewScreen() {
   const theme = useTheme();
-  const [isRunningDevTest, setIsRunningDevTest] = useState(false);
-  const [devTestOutput, setDevTestOutput] = useState<string | null>(null);
+  const insets = useSafeAreaInsets();
 
-  const handleRunDevTest = async () => {
-    setIsRunningDevTest(true);
-    setDevTestOutput(null);
-    try {
-      const result = await runDevSaveTest();
-      setDevTestOutput(
-        `✓ Dev test completed successfully!\n` +
-        `• Validation check: ${result.validationPassed ? 'PASSED' : 'FAILED'}\n` +
-        `• Update order check: ${result.updatePassed ? 'PASSED (rev: ' + result.savedOrder?.revision + ', pending_sync: 1)' : 'FAILED'}\n` +
-        `• Create order check: ${result.createPassed ? 'PASSED (' + result.createdOrder?.wo_id + ')' : 'FAILED'}\n` +
-        `• Outbox rows in DB: ${result.outboxCount}\n` +
-        `Check terminal / console logs for full outbox rows and payloads.`
-      );
-    } catch (err: any) {
-      setDevTestOutput(`✗ Error running dev test: ${err?.message ?? err}`);
-    } finally {
-      setIsRunningDevTest(false);
-    }
+  const [statusFilter, setStatusFilter] = useState<'All' | Status>('All');
+  const [priorityFilter, setPriorityFilter] = useState<PriorityFilterOption>('All');
+
+  // 1. All work orders (used for plant-wide summary card counts)
+  const { orders: allOrders } = useWorkOrders();
+
+  // 2. Filtered work orders (sorted by urgency via listWorkOrders)
+  const filterParams = useMemo(() => ({
+    status: statusFilter === 'All' ? undefined : statusFilter,
+    priority: priorityFilter === 'All' ? undefined : (priorityFilter as Priority),
+  }), [statusFilter, priorityFilter]);
+
+  const { orders: filteredOrders } = useWorkOrders(filterParams);
+
+  // 3. Compute Summary Card Stats across all orders
+  const summaryStats = useMemo(() => {
+    let open = 0;
+    let inProgress = 0;
+    let completed = 0;
+    let overdue = 0;
+
+    allOrders.forEach((o) => {
+      if (o.status === 'Open') open++;
+      else if (o.status === 'In Progress') inProgress++;
+      else if (o.status === 'Completed') completed++;
+
+      if (isOrderOverdue(o)) {
+        overdue++;
+      }
+    });
+
+    return {
+      total: allOrders.length,
+      openCount: open,
+      inProgressCount: inProgress,
+      completedCount: completed,
+      overdueCount: overdue,
+    };
+  }, [allOrders]);
+
+  const handleOrderPress = (order: WorkOrder) => {
+    router.push(`/order/${order.wo_id}`);
+  };
+
+  const handleClearFilters = () => {
+    setStatusFilter('All');
+    setPriorityFilter('All');
+  };
+
+  const handleNewOrderPress = () => {
+    router.push('/order/edit');
   };
 
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: theme.background }]}
-      contentContainerStyle={styles.content}
-    >
-      <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.separator }]}>
-        <Text style={[styles.cardTitle, { color: theme.text }]}>Step 3: Repositories & Save Logic</Text>
-        <Text style={[styles.cardSubtitle, { color: theme.textSecondary }]}>
-          Theme active: {theme.scheme.toUpperCase()} mode ({theme.isDark ? 'Dark tokens' : 'Light tokens'})
-        </Text>
-      </View>
+    <View style={[styles.root, { backgroundColor: theme.background }]}>
+      <Stack.Screen
+        options={{
+          title: 'Work Orders',
+          headerLargeTitle: true,
+          headerRight: () => <OfflineCapsule />,
+        }}
+      />
 
-      {/* Dev test runner card */}
-      <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.brand }]}>
-        <Text style={[styles.cardTitle, { color: theme.brand }]}>Dev Test: Save & Outbox Verification</Text>
-        <Text style={[styles.cardSubtitle, { color: theme.textSecondary, marginBottom: 12 }]}>
-          Executes validation check, updates WO-1001, creates a new order, and logs outbox rows and payloads.
-        </Text>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={[
+          styles.content,
+          {
+            paddingBottom: insets.bottom + 90,
+          },
+        ]}
+      >
+        {/* 1. Summary Card */}
+        <SummaryCard
+          total={summaryStats.total}
+          overdueCount={summaryStats.overdueCount}
+          openCount={summaryStats.openCount}
+          inProgressCount={summaryStats.inProgressCount}
+          completedCount={summaryStats.completedCount}
+        />
 
-        <Pressable
-          style={[styles.primaryButton, { backgroundColor: theme.brand }]}
-          onPress={handleRunDevTest}
-          disabled={isRunningDevTest}
-          accessibilityRole="button"
-          accessibilityLabel="Run Dev Save and Outbox Test"
-        >
-          {isRunningDevTest ? (
-            <ActivityIndicator color={theme.brandText} />
-          ) : (
-            <Text style={[styles.primaryButtonText, { color: theme.brandText }]}>
-              ▶ Run Dev Save & Outbox Test
-            </Text>
-          )}
-        </Pressable>
+        {/* 2. Status Segmented Control */}
+        <SegmentedControl
+          values={STATUS_OPTIONS}
+          selectedValue={statusFilter}
+          onChange={setStatusFilter}
+        />
 
-        {devTestOutput ? (
-          <View style={[styles.outputBox, { backgroundColor: theme.isDark ? '#1c1c1e' : '#f2f2f7' }]}>
-            <Text style={[styles.outputText, { color: theme.text }]}>{devTestOutput}</Text>
-          </View>
-        ) : null}
-      </View>
+        {/* 3. Priority Menu & "Sorted by urgency" */}
+        <PriorityMenu
+          selectedPriority={priorityFilter}
+          onChange={setPriorityFilter}
+        />
 
-      <View style={styles.section}>
-        <Text style={[styles.sectionHeader, { color: theme.textSecondary }]}>SAMPLE WORK ORDERS</Text>
-
-        <Pressable
-          style={[styles.row, { backgroundColor: theme.card, borderBottomColor: theme.separator }]}
-          onPress={() => router.push('/order/WO-1001')}
-          accessibilityRole="button"
-          accessibilityLabel="Open order WO-1001"
-        >
-          <View style={styles.rowContent}>
-            <Text style={[styles.rowTitle, { color: theme.text }]}>Inspect turbine gearbox</Text>
-            <Text style={[styles.rowMeta, { color: theme.high.text }]}>High · WO-1001 · WTG-101</Text>
-          </View>
-          <Text style={[styles.chevron, { color: theme.textSecondary }]}>›</Text>
-        </Pressable>
-
-        <Pressable
-          style={[styles.row, { backgroundColor: theme.card, borderBottomColor: theme.separator }]}
-          onPress={() => router.push('/order/WO-1002')}
-          accessibilityRole="button"
-          accessibilityLabel="Open order WO-1002"
-        >
-          <View style={styles.rowContent}>
-            <Text style={[styles.rowTitle, { color: theme.text }]}>Review inverter fault</Text>
-            <Text style={[styles.rowMeta, { color: theme.critical.text }]}>Critical · WO-1002 · INV-201</Text>
-          </View>
-          <Text style={[styles.chevron, { color: theme.textSecondary }]}>›</Text>
-        </Pressable>
-      </View>
-
-      <View style={styles.actionContainer}>
-        <Link href="/order/edit" asChild>
-          <Pressable
-            style={StyleSheet.flatten([styles.primaryButton, { backgroundColor: theme.brand }])}
-            accessibilityRole="button"
-            accessibilityLabel="Create New Order"
+        {/* 4. Inset Grouped List of Work Orders or Empty State */}
+        {filteredOrders.length > 0 ? (
+          <View
+            style={[
+              styles.listContainer,
+              {
+                backgroundColor: theme.card,
+                borderColor: theme.separator,
+              },
+            ]}
           >
-            <Text style={[styles.primaryButtonText, { color: theme.brandText }]}>+ New Order (Action)</Text>
-          </Pressable>
-        </Link>
+            {filteredOrders.map((order, index) => (
+              <OrderRow
+                key={order.wo_id}
+                order={order}
+                onPress={handleOrderPress}
+                isLast={index === filteredOrders.length - 1}
+              />
+            ))}
+          </View>
+        ) : (
+          <EmptyState
+            status={statusFilter}
+            priority={priorityFilter}
+            onClearFilters={handleClearFilters}
+          />
+        )}
+      </ScrollView>
+
+      {/* 5. Floating "+ New Order" Button */}
+      <View
+        style={[
+          styles.floatingButtonContainer,
+          {
+            bottom: Math.max(insets.bottom + 16, 24),
+          },
+        ]}
+      >
+        <Pressable
+          onPress={handleNewOrderPress}
+          accessibilityRole="button"
+          accessibilityLabel="Create New Work Order"
+          style={({ pressed }) => [
+            styles.floatingButton,
+            {
+              backgroundColor: theme.brand,
+              opacity: pressed ? 0.85 : 1,
+            },
+          ]}
+        >
+          <Text style={[styles.floatingButtonText, { color: theme.brandText }]}>
+            + New Order
+          </Text>
+        </Pressable>
       </View>
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  root: {
+    flex: 1,
+  },
+  scrollView: {
     flex: 1,
   },
   content: {
     padding: 16,
-    paddingBottom: 40,
     maxWidth: 640,
     width: '100%',
     alignSelf: 'center',
     gap: 16,
   },
-  card: {
+  listContainer: {
     borderRadius: 16,
-    padding: 16,
     borderWidth: StyleSheet.hairlineWidth,
-  },
-  cardTitle: {
-    fontSize: 17,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  cardSubtitle: {
-    fontSize: 14,
-  },
-  outputBox: {
-    marginTop: 12,
-    padding: 12,
-    borderRadius: 8,
-  },
-  outputText: {
-    fontSize: 13,
-    fontFamily: 'System',
-    lineHeight: 18,
-  },
-  section: {
-    borderRadius: 16,
     overflow: 'hidden',
   },
-  sectionHeader: {
-    fontSize: 13,
-    fontWeight: '600',
-    marginBottom: 8,
-    marginLeft: 16,
-    letterSpacing: 0.2,
+  floatingButtonContainer: {
+    position: 'absolute',
+    right: 20,
+    alignSelf: 'flex-end',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 6,
   },
-  row: {
+  floatingButton: {
+    minHeight: 52,
+    borderRadius: 26,
+    paddingHorizontal: 22,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    minHeight: 54,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  rowContent: {
-    flex: 1,
-  },
-  rowTitle: {
-    fontSize: 16,
-    fontWeight: '500',
-    marginBottom: 2,
-  },
-  rowMeta: {
-    fontSize: 13,
-    fontWeight: '500',
-  },
-  chevron: {
-    fontSize: 22,
-    fontWeight: '300',
-    marginLeft: 8,
-  },
-  actionContainer: {
-    marginTop: 8,
-  },
-  primaryButton: {
-    minHeight: 52,
-    borderRadius: 14,
-    alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 20,
   },
-  primaryButtonText: {
+  floatingButtonText: {
     fontSize: 16,
     fontWeight: '600',
+    letterSpacing: -0.2,
   },
 });

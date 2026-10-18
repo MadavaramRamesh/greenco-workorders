@@ -19,6 +19,7 @@ import { getDatabaseAsync } from './db';
 import { SqliteOutboxRepo } from './SqliteOutboxRepo';
 import { SqliteSettingsRepo } from './SqliteSettingsRepo';
 import { SqliteWorkOrderRepo } from './SqliteWorkOrderRepo';
+import { dataEvents } from './events';
 
 export interface ServiceRepositories {
   workOrderRepo?: WorkOrderRepo;
@@ -137,6 +138,9 @@ export async function saveWorkOrder(
     savedOrder = order;
   });
 
+  dataEvents.emit('work_orders');
+  dataEvents.emit('outbox');
+
   return {
     success: true,
     order: savedOrder!,
@@ -217,7 +221,8 @@ export async function setOfflineSetting(
 ): Promise<void> {
   const db = deps?.db ?? (await getDatabaseAsync());
   const settingsRepo = deps?.settingsRepo ?? new SqliteSettingsRepo(db);
-  return settingsRepo.setOffline(offline);
+  await settingsRepo.setOffline(offline);
+  dataEvents.emit('settings');
 }
 
 /**
