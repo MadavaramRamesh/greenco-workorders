@@ -2,7 +2,9 @@
 
 An offline-first mobile app for plant technicians to view and update maintenance work orders (wind turbines, solar inverters, pumps). Built for the "Plant Work Orders & Maintenance Planner" case with React Native, Expo and SQLite.
 
-[Overview](https://claude.ai/chat/screenshots/overview.png) · [Detail](https://claude.ai/chat/screenshots/detail.png)
+| Overview Screen | Detail Screen | Action Screen |
+| :---: | :---: | :---: |
+| ![Overview](screenshots/overview.png) | ![Detail](screenshots/detail.png) | ![Action](screenshots/action.png) |
 
 ## What it does
 
@@ -40,6 +42,11 @@ The first launch loads 14 work orders: the 4 from `data/work_orders.csv` plus 10
 4. Fully close the app and reopen it. The change is still there and still pending.
 5. Turn Offline off and tap Sync Now twice. Pending goes to 0, the order shows as synced, and there is no duplicate.
 6. Save with an empty title to see the validation error. Run `npm test`.
+
+## Demo video
+
+- 🎥 **Video recording:** [Watch the demo walkthrough](demo/demo.mp4)
+*(If hosting online, you can also replace this with an unlisted YouTube, Loom, or Google Drive link).*
 
 ## Tests
 
