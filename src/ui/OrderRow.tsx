@@ -2,6 +2,8 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { WorkOrder } from '../domain/types';
 import { useTheme } from '../domain/theme';
+import { getAssetGlyph } from '../domain/asset';
+import { getOverdueDays, isOrderOverdue } from '../domain/urgency';
 
 export interface OrderRowProps {
   order: WorkOrder;
@@ -72,27 +74,12 @@ export function OrderRow({ order, onPress, isLast = false }: OrderRowProps) {
   };
 
   // 3. Asset Glyph (WTG = turbine, INV = inverter, PMP = pump, other = gear)
-  const getAssetGlyph = () => {
-    const prefix = order.asset_id.split('-')[0]?.toUpperCase() ?? '';
-    if (prefix === 'WTG') return '✇';
-    if (prefix === 'INV') return '⚡';
-    if (prefix === 'PMP') return '💧';
-    return '⚙';
-  };
+  const assetGlyph = getAssetGlyph(order.asset_id);
 
   // 4. Overdue calculation
   const todayStr = new Date().toISOString().slice(0, 10);
-  const isOverdue =
-    order.status !== 'Completed' &&
-    Boolean(order.due_date && order.due_date < todayStr);
-
-  let overdueDays = 0;
-  if (isOverdue && order.due_date) {
-    const todayMs = new Date(todayStr).getTime();
-    const dueMs = new Date(order.due_date).getTime();
-    const diff = todayMs - dueMs;
-    overdueDays = Math.max(1, Math.round(diff / (1000 * 60 * 60 * 24)));
-  }
+  const isOverdue = isOrderOverdue(order, todayStr);
+  const overdueDays = getOverdueDays(order.due_date, todayStr);
 
   const priorityColors = getPriorityColors();
   const statusColors = getStatusColors();
@@ -122,7 +109,7 @@ export function OrderRow({ order, onPress, isLast = false }: OrderRowProps) {
           },
         ]}
       >
-        <Text style={styles.tileGlyph}>{getAssetGlyph()}</Text>
+        <Text style={styles.tileGlyph}>{assetGlyph}</Text>
       </View>
 
       {/* 3-line Text Content */}

@@ -22,6 +22,21 @@ export function isOrderOverdue(
 }
 
 /**
+ * Calculates number of days an order is overdue relative to referenceDate.
+ * Returns 0 if not overdue.
+ */
+export function getOverdueDays(
+  dueDate: string | null,
+  referenceDate: string = new Date().toISOString().slice(0, 10)
+): number {
+  if (!dueDate || dueDate >= referenceDate) return 0;
+  const todayMs = new Date(referenceDate).getTime();
+  const dueMs = new Date(dueDate).getTime();
+  const diff = todayMs - dueMs;
+  return Math.max(1, Math.round(diff / (1000 * 60 * 60 * 24)));
+}
+
+/**
  * Comparator function to sort work orders by urgency:
  * 1. Overdue first (overdue non-completed orders come before all other orders)
  * 2. Then Priority (Critical > High > Medium > Low)
