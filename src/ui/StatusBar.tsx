@@ -30,7 +30,7 @@ export function StatusBar({
       <View
         style={[
           styles.track,
-          { backgroundColor: theme.isDark ? '#2C2C2E' : '#E5E5EA' },
+          { backgroundColor: theme.disabled },
         ]}
       >
         {total === 0 ? (

@@ -131,7 +131,7 @@ export function ProgressStepper({ currentStatus }: ProgressStepperProps) {
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 14,
+    borderRadius: 16,
     borderWidth: StyleSheet.hairlineWidth,
     paddingHorizontal: 14,
     paddingVertical: 14,

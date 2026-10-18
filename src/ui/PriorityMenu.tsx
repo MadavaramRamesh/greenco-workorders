@@ -69,7 +69,7 @@ export function PriorityMenu({
           style={({ pressed }) => [
             styles.menuButton,
             {
-              backgroundColor: theme.isDark ? '#1C1C1E' : '#FFFFFF',
+              backgroundColor: theme.card,
               borderColor: theme.separator,
               opacity: pressed ? 0.7 : 1,
             },
@@ -93,7 +93,7 @@ export function PriorityMenu({
         onRequestClose={() => setModalVisible(false)}
       >
         <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
-          <View style={styles.modalOverlay}>
+          <View style={[styles.modalOverlay, { backgroundColor: theme.modalOverlay }]}>
             <TouchableWithoutFeedback>
               <View
                 style={[
@@ -101,6 +101,7 @@ export function PriorityMenu({
                   {
                     backgroundColor: theme.card,
                     borderColor: theme.separator,
+                    shadowColor: theme.shadow,
                   },
                 ]}
               >
@@ -121,7 +122,7 @@ export function PriorityMenu({
                       style={({ pressed }) => [
                         styles.modalOption,
                         !isLast && { borderBottomColor: theme.separator, borderBottomWidth: StyleSheet.hairlineWidth },
-                        pressed && { backgroundColor: theme.isDark ? '#2C2C2E' : '#F2F2F7' },
+                        pressed && { backgroundColor: theme.cardPressed },
                       ]}
                       accessibilityRole="button"
                       accessibilityLabel={`Select priority ${option}`}
@@ -203,7 +204,6 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.45)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
@@ -214,7 +214,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: StyleSheet.hairlineWidth,
     overflow: 'hidden',
-    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 10,

@@ -25,6 +25,18 @@ export interface ThemeTokens {
   error: string;
   errorBackground: string;
 
+  // Interactive & State tokens
+  cardPressed: string;
+  disabled: string;
+  disabledText: string;
+  modalOverlay: string;
+  shadow: string;
+  switchThumb: string;
+  switchTrackOff: string;
+  tileGlyph: string;
+  badgeMediumBg: string;
+  badgeLowBg: string;
+
   // Status tokens
   open: ColorTriple;
   inProgress: ColorTriple;
@@ -55,6 +67,17 @@ export const lightTokens: ThemeTokens = {
   segmentedSelected: '#FFFFFF',
   error: '#D70015',
   errorBackground: '#FFE5E3',
+
+  cardPressed: '#F2F2F7',
+  disabled: '#E5E5EA',
+  disabledText: '#8E8E93',
+  modalOverlay: 'rgba(0, 0, 0, 0.4)',
+  shadow: '#000000',
+  switchThumb: '#FFFFFF',
+  switchTrackOff: '#D1D1D6',
+  tileGlyph: '#FFFFFF',
+  badgeMediumBg: '#FFF4CC',
+  badgeLowBg: '#E5E5EA',
 
   open: {
     fill: '#007AFF',
@@ -123,6 +146,17 @@ export const darkTokens: ThemeTokens = {
   segmentedSelected: '#636366',
   error: '#FF6961',
   errorBackground: '#3E110F',
+
+  cardPressed: '#2C2C2E',
+  disabled: '#2C2C2E',
+  disabledText: '#636366',
+  modalOverlay: 'rgba(0, 0, 0, 0.65)',
+  shadow: '#000000',
+  switchThumb: '#FFFFFF',
+  switchTrackOff: '#38383A',
+  tileGlyph: '#FFFFFF',
+  badgeMediumBg: '#3E2F00',
+  badgeLowBg: '#2C2C2E',
 
   open: {
     fill: '#0A84FF',

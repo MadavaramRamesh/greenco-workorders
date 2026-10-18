@@ -38,7 +38,7 @@ export function Badge({
 }: BadgeProps) {
   const theme = useTheme();
 
-  let resolvedBg = backgroundColor ?? (theme.isDark ? '#2C2C2E' : '#E5E5EA');
+  let resolvedBg = backgroundColor ?? theme.badgeLowBg;
   let resolvedText = textColor ?? theme.text;
 
   if (variant === 'priority' && priority) {
@@ -52,12 +52,12 @@ export function Badge({
         resolvedText = theme.high.text;
         break;
       case 'Medium':
-        resolvedBg = theme.isDark ? '#3E2F00' : '#FFF4CC';
+        resolvedBg = theme.badgeMediumBg;
         resolvedText = theme.medium.text;
         break;
       case 'Low':
       default:
-        resolvedBg = theme.isDark ? '#2C2C2E' : '#E5E5EA';
+        resolvedBg = theme.badgeLowBg;
         resolvedText = theme.low.text;
         break;
     }

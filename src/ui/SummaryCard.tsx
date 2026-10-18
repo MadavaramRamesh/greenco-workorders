@@ -33,7 +33,7 @@ export function SummaryCard({
   const theme = useTheme();
   const { count: pendingCount } = usePendingCount();
   const { isOffline } = useOffline();
-  const { isSyncing, syncNow } = useSync();
+  const { isSyncing, lastSyncedAt, syncNow } = useSync();
   const [justSynced, setJustSynced] = useState(false);
 
   const handleSync = async () => {
@@ -56,6 +56,7 @@ export function SummaryCard({
         {
           backgroundColor: theme.card,
           borderColor: theme.separator,
+          shadowColor: theme.shadow,
         },
         style,
       ]}
@@ -91,7 +92,18 @@ export function SummaryCard({
       {/* Pending Row */}
       <View style={styles.pendingRow}>
         <View style={styles.pendingInfo}>
-          {pendingCount > 0 ? (
+          {isSyncing ? (
+            <View style={styles.pendingBadgeRow}>
+              <ActivityIndicator
+                size="small"
+                color={theme.pendingSync.text}
+                style={{ marginRight: 2 }}
+              />
+              <Text style={[styles.pendingText, { color: theme.pendingSync.text }]}>
+                Syncing changes...
+              </Text>
+            </View>
+          ) : pendingCount > 0 ? (
             <View style={styles.pendingBadgeRow}>
               <Text style={[styles.pendingCloudIcon, { color: theme.pendingSync.text }]}>
                 ☁↑
@@ -106,7 +118,7 @@ export function SummaryCard({
                 ✓
               </Text>
               <Text style={[styles.syncedText, { color: theme.completed.text }]}>
-                {justSynced
+                {justSynced || lastSyncedAt
                   ? 'All changes synced · just now'
                   : 'All changes synced'}
               </Text>
@@ -125,16 +137,18 @@ export function SummaryCard({
             styles.syncButton,
             {
               backgroundColor: isSyncDisabled
-                ? (theme.isDark ? '#2C2C2E' : '#E5E5EA')
-                : (pressed ? theme.brandText : theme.brand),
-              opacity: isSyncDisabled ? 0.7 : 1,
+                ? theme.disabled
+                : pressed
+                ? theme.brandText
+                : theme.brand,
+              opacity: isSyncDisabled ? 0.7 : pressed ? 0.85 : 1,
             },
           ]}
         >
           {isSyncing ? (
             <ActivityIndicator
               size="small"
-              color={theme.isDark ? '#FFFFFF' : '#000000'}
+              color={theme.isDark ? theme.brand : theme.brand}
             />
           ) : (
             <Text
@@ -142,7 +156,7 @@ export function SummaryCard({
                 styles.syncButtonText,
                 {
                   color: isSyncDisabled
-                    ? theme.textSecondary
+                    ? theme.disabledText
                     : theme.brandText,
                 },
               ]}
@@ -162,7 +176,6 @@ const styles = StyleSheet.create({
     padding: 16,
     borderWidth: StyleSheet.hairlineWidth,
     gap: 14,
-    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 3,

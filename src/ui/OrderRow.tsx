@@ -97,7 +97,7 @@ export function OrderRow({ order, onPress, isLast = false }: OrderRowProps) {
           borderBottomColor: theme.separator,
           borderBottomWidth: isLast ? 0 : StyleSheet.hairlineWidth,
         },
-        pressed && { backgroundColor: theme.isDark ? '#2C2C2E' : '#F2F2F7' },
+        pressed && { backgroundColor: theme.cardPressed },
       ]}
     >
       {/* Colored Icon Tile (iOS Settings style) */}
@@ -109,7 +109,7 @@ export function OrderRow({ order, onPress, isLast = false }: OrderRowProps) {
           },
         ]}
       >
-        <Text style={styles.tileGlyph}>{assetGlyph}</Text>
+        <Text style={[styles.tileGlyph, { color: theme.tileGlyph }]}>{assetGlyph}</Text>
       </View>
 
       {/* 3-line Text Content */}
@@ -198,7 +198,6 @@ const styles = StyleSheet.create({
     marginRight: 14,
   },
   tileGlyph: {
-    color: '#FFFFFF',
     fontSize: 18,
     fontWeight: '700',
   },

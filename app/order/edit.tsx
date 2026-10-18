@@ -601,7 +601,7 @@ export default function ActionScreen() {
         animationType="slide"
         onRequestClose={() => setAssetModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
+        <View style={[styles.modalOverlay, { backgroundColor: theme.modalOverlay }]}>
           <Pressable
             style={styles.modalBackdropDismiss}
             onPress={() => setAssetModalVisible(false)}
@@ -708,7 +708,7 @@ export default function ActionScreen() {
         animationType="slide"
         onRequestClose={() => setAssignedModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
+        <View style={[styles.modalOverlay, { backgroundColor: theme.modalOverlay }]}>
           <Pressable
             style={styles.modalBackdropDismiss}
             onPress={() => setAssignedModalVisible(false)}
@@ -878,7 +878,7 @@ const styles = StyleSheet.create({
   },
   inputCard: {
     minHeight: 52,
-    borderRadius: 14,
+    borderRadius: 16,
     paddingHorizontal: 16,
     justifyContent: 'center',
   },
@@ -889,7 +889,7 @@ const styles = StyleSheet.create({
   },
   rowSelector: {
     minHeight: 52,
-    borderRadius: 14,
+    borderRadius: 16,
     paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',
@@ -955,9 +955,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
   },
   presetChip: {
-    minHeight: 36,
-    paddingHorizontal: 12,
-    borderRadius: 18,
+    minHeight: 44,
+    paddingHorizontal: 14,
+    borderRadius: 22,
     borderWidth: StyleSheet.hairlineWidth,
     alignItems: 'center',
     justifyContent: 'center',
@@ -966,7 +966,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   offlineNoteCard: {
-    borderRadius: 12,
+    borderRadius: 14,
     borderWidth: 1,
     padding: 12,
     flexDirection: 'row',
@@ -990,7 +990,7 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     minHeight: 52,
-    borderRadius: 14,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 20,
@@ -1000,8 +1000,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   secondaryButton: {
-    minHeight: 48,
-    borderRadius: 14,
+    minHeight: 50,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 20,
@@ -1020,7 +1020,6 @@ const styles = StyleSheet.create({
   // Modal Styles
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
     justifyContent: 'flex-end',
   },
   modalBackdropDismiss: {

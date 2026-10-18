@@ -214,7 +214,9 @@ export default function DetailScreen() {
               { backgroundColor: priorityColors.fill },
             ]}
           >
-            <Text style={styles.tileGlyph}>{getAssetGlyph(order.asset_id)}</Text>
+            <Text style={[styles.tileGlyph, { color: theme.tileGlyph }]}>
+              {getAssetGlyph(order.asset_id)}
+            </Text>
           </View>
           <View style={styles.headerInfo}>
             <Text
@@ -247,11 +249,16 @@ export default function DetailScreen() {
               variant="overdue"
             />
           )}
-          {isPending && (
+          {isPending ? (
             <Badge
               label="Pending"
               icon="☁"
               variant="pending"
+            />
+          ) : (
+            <Badge
+              label="Synced"
+              variant="synced"
             />
           )}
         </View>
@@ -393,6 +400,7 @@ export default function DetailScreen() {
           {
             backgroundColor: theme.card,
             borderTopColor: theme.separator,
+            shadowColor: theme.shadow,
             paddingBottom: Math.max(insets.bottom + 8, 16),
           },
         ]}
@@ -404,9 +412,8 @@ export default function DetailScreen() {
             style={({ pressed }) => [
               styles.editButton,
               {
-                backgroundColor: theme.isDark ? '#2C2C2E' : '#F2F2F7',
+                backgroundColor: pressed ? theme.cardPressed : theme.cardSecondary,
                 borderColor: theme.separator,
-                opacity: pressed ? 0.75 : 1,
               },
             ]}
             accessibilityRole="button"
@@ -539,7 +546,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   tileGlyph: {
-    color: '#FFFFFF',
     fontSize: 24,
     fontWeight: '700',
   },
@@ -564,7 +570,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   groupedCard: {
-    borderRadius: 14,
+    borderRadius: 16,
     borderWidth: StyleSheet.hairlineWidth,
     overflow: 'hidden',
   },
@@ -643,7 +649,6 @@ const styles = StyleSheet.create({
     borderTopWidth: StyleSheet.hairlineWidth,
     paddingTop: 12,
     paddingHorizontal: 16,
-    shadowColor: '#000000',
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.08,
     shadowRadius: 6,

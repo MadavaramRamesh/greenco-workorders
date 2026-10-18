@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import {
+  ActivityIndicator,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -45,7 +46,7 @@ export default function OverviewScreen() {
     priority: priorityFilter === 'All' ? undefined : (priorityFilter as Priority),
   }), [statusFilter, priorityFilter]);
 
-  const { orders: filteredOrders } = useWorkOrders(filterParams);
+  const { orders: filteredOrders, loading: ordersLoading } = useWorkOrders(filterParams);
 
   // 3. Compute Summary Card Stats across all orders
   const summaryStats = useMemo(() => {
@@ -127,8 +128,20 @@ export default function OverviewScreen() {
           onChange={setPriorityFilter}
         />
 
-        {/* 4. Inset Grouped List of Work Orders or Empty State */}
-        {filteredOrders.length > 0 ? (
+        {/* 4. Inset Grouped List of Work Orders, Loading State, or Empty State */}
+        {ordersLoading && filteredOrders.length === 0 ? (
+          <View
+            style={[
+              styles.loadingBox,
+              { backgroundColor: theme.card, borderColor: theme.separator },
+            ]}
+          >
+            <ActivityIndicator size="small" color={theme.brand} />
+            <Text style={[styles.loadingText, { color: theme.textSecondary }]}>
+              Loading work orders...
+            </Text>
+          </View>
+        ) : filteredOrders.length > 0 ? (
           <View
             style={[
               styles.listContainer,
@@ -162,6 +175,7 @@ export default function OverviewScreen() {
           styles.floatingButtonContainer,
           {
             bottom: Math.max(insets.bottom + 16, 24),
+            shadowColor: theme.shadow,
           },
         ]}
       >
@@ -205,11 +219,22 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     overflow: 'hidden',
   },
+  loadingBox: {
+    borderRadius: 16,
+    borderWidth: StyleSheet.hairlineWidth,
+    padding: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+  },
+  loadingText: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
   floatingButtonContainer: {
     position: 'absolute',
     right: 20,
     alignSelf: 'flex-end',
-    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,

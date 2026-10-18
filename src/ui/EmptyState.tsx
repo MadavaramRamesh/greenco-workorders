@@ -56,7 +56,7 @@ export function EmptyState({
         style={({ pressed }) => [
           styles.clearButton,
           {
-            backgroundColor: pressed ? theme.isDark ? '#2C2C2E' : '#E5E5EA' : 'transparent',
+            backgroundColor: pressed ? theme.cardPressed : 'transparent',
             borderColor: theme.brand,
           },
         ]}

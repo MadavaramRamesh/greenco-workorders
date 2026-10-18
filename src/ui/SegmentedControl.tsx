@@ -41,14 +41,18 @@ export function SegmentedControl<T extends string = string>({
             accessibilityRole="radio"
             accessibilityState={{ selected: isSelected }}
             accessibilityLabel={val}
-            style={[
+            style={({ pressed }) => [
               styles.segment,
               isSelected && [
                 styles.selectedSegment,
                 {
                   backgroundColor: theme.segmentedSelected,
+                  shadowColor: theme.shadow,
                 },
               ],
+              pressed && !isSelected && {
+                opacity: 0.7,
+              },
             ]}
           >
             <Text
@@ -73,22 +77,21 @@ export function SegmentedControl<T extends string = string>({
 const styles = StyleSheet.create({
   track: {
     flexDirection: 'row',
-    borderRadius: 10,
+    borderRadius: 12,
     padding: 3,
-    minHeight: 44,
+    minHeight: 50,
     alignItems: 'center',
     width: '100%',
   },
   segment: {
     flex: 1,
-    minHeight: 38,
-    borderRadius: 8,
+    minHeight: 44,
+    borderRadius: 9,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 6,
   },
   selectedSegment: {
-    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.15,
     shadowRadius: 2,

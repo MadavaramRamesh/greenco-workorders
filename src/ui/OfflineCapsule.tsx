@@ -49,12 +49,12 @@ export function OfflineCapsule({ style }: OfflineCapsuleProps) {
         style={[
           styles.switchTrack,
           {
-            backgroundColor: isOffline ? colors.fill : (theme.isDark ? '#38383A' : '#D1D1D6'),
+            backgroundColor: isOffline ? colors.fill : theme.switchTrackOff,
             justifyContent: isOffline ? 'flex-end' : 'flex-start',
           },
         ]}
       >
-        <View style={styles.switchThumb} />
+        <View style={[styles.switchThumb, { backgroundColor: theme.switchThumb }]} />
       </View>
     </Pressable>
   );
@@ -94,7 +94,6 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#FFFFFF',
   },
 });
 
