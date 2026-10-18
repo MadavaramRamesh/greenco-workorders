@@ -45,8 +45,7 @@ The first launch loads 14 work orders: the 4 from `data/work_orders.csv` plus 10
 
 ## Demo video
 
-- 🎥 **Video recording:** [Watch the demo walkthrough](demo/demo.mp4)
-*(If hosting online, you can also replace this with an unlisted YouTube, Loom, or Google Drive link).*
+- 🎥 **Video walkthrough:** [Watch the demo video (Google Drive)](https://drive.google.com/file/d/1OfP5ss2wBmXM8yn-C4GLekdN4ZAOnHsb/view?usp=sharing)
 
 ## Tests
 
