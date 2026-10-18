@@ -199,6 +199,7 @@ export default function DetailScreen() {
 
       <ScrollView
         style={styles.scrollView}
+        contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={[
           styles.content,
           {
@@ -546,7 +547,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   tileGlyph: {
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: '700',
   },
   headerInfo: {

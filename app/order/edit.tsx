@@ -268,6 +268,7 @@ export default function ActionScreen() {
 
       <ScrollView
         style={styles.scrollView}
+        contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={[
           styles.content,
           {

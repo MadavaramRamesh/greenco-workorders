@@ -69,6 +69,7 @@ export default function RootLayout() {
           headerStyle: { backgroundColor: theme.card },
           headerTintColor: theme.brand,
           headerTitleStyle: { color: theme.text },
+          headerLargeTitleStyle: { color: theme.text },
           contentStyle: { backgroundColor: theme.background },
           headerShadowVisible: false,
         }}

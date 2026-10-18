@@ -99,6 +99,7 @@ export default function OverviewScreen() {
 
       <ScrollView
         style={styles.scrollView}
+        contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={[
           styles.content,
           {
