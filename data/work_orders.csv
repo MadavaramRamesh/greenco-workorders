@@ -1,0 +1,5 @@
+wo_id,asset_id,title,priority,status,assigned_to,due_date,updated_at,revision
+WO-1001,WTG-101,Inspect turbine gearbox,High,Open,Technician A,2026-10-19,2026-10-14T08:00:00Z,2
+WO-1002,INV-201,Review inverter fault,Critical,In Progress,Technician B,2026-10-16,2026-10-14T09:30:00Z,1
+WO-1003,PMP-301,Hydraulic vibration check,Medium,Open,Technician C,2026-10-22,2026-10-13T11:00:00Z,3
+WO-1004,WTG-102,Lubrication schedule,Low,Completed,Technician A,2026-10-11,2026-10-14T10:30:00Z,4
