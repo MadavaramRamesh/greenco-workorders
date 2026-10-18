@@ -6,6 +6,7 @@ export interface SegmentedControlProps<T extends string = string> {
   values: readonly T[];
   selectedValue: T;
   onChange: (value: T) => void;
+  renderLabel?: (value: T) => string;
   style?: object;
 }
 
@@ -17,6 +18,7 @@ export function SegmentedControl<T extends string = string>({
   values,
   selectedValue,
   onChange,
+  renderLabel,
   style,
 }: SegmentedControlProps<T>) {
   const theme = useTheme();
@@ -65,7 +67,7 @@ export function SegmentedControl<T extends string = string>({
               ]}
               numberOfLines={1}
             >
-              {val}
+              {renderLabel ? renderLabel(val) : val}
             </Text>
           </Pressable>
         );

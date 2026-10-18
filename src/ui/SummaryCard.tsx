@@ -63,20 +63,34 @@ export function SummaryCard({
     >
       {/* Header: Total Count & Overdue Count */}
       <View style={styles.headerRow}>
-        <Text style={[styles.totalText, { color: theme.text }]}>
-          {orderText}
-        </Text>
-        <Text
-          style={[
-            styles.overdueText,
-            {
-              color: overdueCount > 0 ? theme.critical.text : theme.textSecondary,
-              fontWeight: overdueCount > 0 ? '600' : '400',
-            },
-          ]}
-        >
-          {overdueText}
-        </Text>
+        <View style={styles.headerLeft}>
+          <Text style={[styles.totalText, { color: theme.text }]}>
+            {orderText}
+          </Text>
+          <Text style={[styles.plantSubtitle, { color: theme.textSecondary }]}>
+            {' '}· Plant Total
+          </Text>
+        </View>
+
+        {overdueCount > 0 ? (
+          <View
+            style={[
+              styles.overdueBadge,
+              {
+                backgroundColor: theme.critical.background,
+                borderColor: theme.critical.fill,
+              },
+            ]}
+          >
+            <Text style={[styles.overdueBadgeText, { color: theme.critical.text }]}>
+              {overdueText}
+            </Text>
+          </View>
+        ) : (
+          <Text style={[styles.overdueText, { color: theme.textSecondary }]}>
+            {overdueText}
+          </Text>
+        )}
       </View>
 
       {/* Chart: Thin stacked status bar with legend */}
@@ -186,12 +200,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
   totalText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
+  },
+  plantSubtitle: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  overdueBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+    borderWidth: StyleSheet.hairlineWidth,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  overdueBadgeText: {
+    fontSize: 12,
+    fontWeight: '700',
   },
   overdueText: {
-    fontSize: 14,
+    fontSize: 13,
   },
   separator: {
     height: StyleSheet.hairlineWidth,

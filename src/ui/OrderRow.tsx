@@ -75,6 +75,7 @@ export function OrderRow({ order, onPress, isLast = false }: OrderRowProps) {
 
   // 3. Asset Glyph (WTG = turbine, INV = inverter, PMP = pump, other = gear)
   const assetGlyph = getAssetGlyph(order.asset_id);
+  const assetPrefix = order.asset_id ? (order.asset_id.split('-')[0]?.toUpperCase() ?? '') : '';
 
   // 4. Overdue calculation
   const todayStr = new Date().toISOString().slice(0, 10);
@@ -85,139 +86,194 @@ export function OrderRow({ order, onPress, isLast = false }: OrderRowProps) {
   const statusColors = getStatusColors();
   const isPending = order.pending_sync === 1;
 
+  const priorityTextColor = order.priority === 'Medium' ? '#000000' : '#FFFFFF';
+
   return (
     <Pressable
       onPress={() => onPress(order)}
       accessibilityRole="button"
       accessibilityLabel={`${order.title}, ${order.priority} priority, status ${order.status}`}
       style={({ pressed }) => [
-        styles.row,
+        styles.card,
         {
-          backgroundColor: theme.card,
-          borderBottomColor: theme.separator,
-          borderBottomWidth: isLast ? 0 : StyleSheet.hairlineWidth,
+          backgroundColor: pressed ? theme.cardPressed : theme.card,
+          borderColor: theme.separator,
+          shadowColor: theme.shadow,
         },
-        pressed && { backgroundColor: theme.cardPressed },
       ]}
     >
-      {/* Colored Icon Tile (iOS Settings style) */}
+      {/* Left Column: Asset Tile with Glyph + Prefix Tag */}
       <View
         style={[
-          styles.iconTile,
+          styles.assetTile,
           {
-            backgroundColor: priorityColors.fill,
+            backgroundColor: theme.cardSecondary,
+            borderColor: theme.separator,
           },
         ]}
       >
-        <Text style={[styles.tileGlyph, { color: theme.tileGlyph }]}>{assetGlyph}</Text>
+        <Text style={[styles.tileGlyph, { color: priorityColors.fill }]}>
+          {assetGlyph}
+        </Text>
+        {assetPrefix ? (
+          <Text style={[styles.tilePrefix, { color: theme.textSecondary }]}>
+            {assetPrefix}
+          </Text>
+        ) : null}
       </View>
 
-      {/* 3-line Text Content */}
-      <View style={styles.content}>
-        {/* Line 1: Title */}
+      {/* Right Column: Meta, Title, Status & Due Date */}
+      <View style={styles.cardContent}>
+        {/* Row 1: ID · Asset & Solid Priority Badge */}
+        <View style={styles.topRow}>
+          <Text
+            style={[styles.idText, { color: theme.textSecondary }]}
+            numberOfLines={1}
+          >
+            {order.wo_id} · {order.asset_id}
+          </Text>
+
+          <View
+            style={[
+              styles.priorityBadge,
+              { backgroundColor: priorityColors.fill },
+            ]}
+          >
+            <Text style={[styles.priorityBadgeText, { color: priorityTextColor }]}>
+              {order.priority.toUpperCase()}
+            </Text>
+          </View>
+        </View>
+
+        {/* Row 2: Title */}
         <Text
           style={[styles.title, { color: theme.text }]}
-          numberOfLines={1}
+          numberOfLines={2}
           ellipsizeMode="tail"
         >
           {order.title}
         </Text>
 
-        {/* Line 2: Priority · WO ID · Asset ID */}
-        <Text style={styles.metaLine} numberOfLines={1}>
-          <Text style={[styles.priorityText, { color: priorityColors.text }]}>
-            {order.priority}
-          </Text>
-          <Text style={{ color: theme.textSecondary }}>
-            {' · '}
-            {order.wo_id}
-            {' · '}
-            {order.asset_id}
-          </Text>
-        </Text>
-
-        {/* Line 3: Status Dot · Status · Due Date / Overdue */}
-        <View style={styles.statusLine}>
-          <Text style={[styles.statusDot, { color: statusColors.fill }]}>●</Text>
-          <Text style={[styles.statusText, { color: statusColors.text }]}>
-            {order.status}
-          </Text>
+        {/* Row 3: Status Dot/Text (+ optional sync cloud) & Due / Overdue Badge */}
+        <View style={styles.bottomRow}>
+          <View style={styles.statusGroup}>
+            <Text style={[styles.statusDot, { color: statusColors.fill }]}>●</Text>
+            <Text style={[styles.statusText, { color: statusColors.text }]}>
+              {order.status}
+            </Text>
+            {isPending && (
+              <Text
+                style={[styles.pendingCloud, { color: theme.pendingSync.text }]}
+                accessibilityLabel="Pending synchronization"
+              >
+                ☁
+              </Text>
+            )}
+          </View>
 
           {order.due_date ? (
-            <>
-              <Text style={[styles.bullet, { color: theme.textSecondary }]}>·</Text>
-              {isOverdue ? (
-                <Text
-                  style={[
-                    styles.overdueNote,
-                    { color: theme.critical.text },
-                  ]}
-                >
+            isOverdue ? (
+              <View
+                style={[
+                  styles.overdueBadge,
+                  {
+                    backgroundColor: theme.critical.background,
+                    borderColor: theme.critical.fill,
+                  },
+                ]}
+              >
+                <Text style={[styles.overdueText, { color: theme.critical.text }]}>
                   Overdue {overdueDays}d
                 </Text>
-              ) : (
-                <Text style={[styles.dateText, { color: theme.textSecondary }]}>
-                  Due {formatDueDate(order.due_date)}
-                </Text>
-              )}
-            </>
+              </View>
+            ) : (
+              <Text style={[styles.dueText, { color: theme.textSecondary }]}>
+                Due {formatDueDate(order.due_date)}
+              </Text>
+            )
           ) : null}
         </View>
-      </View>
-
-      {/* Right Accessory: Pending Cloud + Chevron */}
-      <View style={styles.rightAccessory}>
-        {isPending && (
-          <Text
-            style={[styles.pendingCloud, { color: theme.pendingSync.text }]}
-            accessibilityLabel="Pending synchronization"
-          >
-            ☁
-          </Text>
-        )}
-        <Text style={[styles.chevron, { color: theme.textSecondary }]}>›</Text>
       </View>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  row: {
+  card: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    minHeight: 74,
+    padding: 14,
+    borderRadius: 16,
+    borderWidth: StyleSheet.hairlineWidth,
+    minHeight: 88,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
+    elevation: 1,
   },
-  iconTile: {
-    width: 38,
-    height: 38,
-    borderRadius: 9,
+  assetTile: {
+    width: 48,
+    height: 52,
+    borderRadius: 12,
+    borderWidth: StyleSheet.hairlineWidth,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 14,
+    marginRight: 12,
+    gap: 1,
   },
   tileGlyph: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '700',
+    lineHeight: 24,
   },
-  content: {
+  tilePrefix: {
+    fontSize: 9,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
+  cardContent: {
     flex: 1,
     justifyContent: 'center',
-    gap: 3,
+    gap: 2,
+  },
+  topRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  idText: {
+    fontSize: 12,
+    fontWeight: '600',
+    letterSpacing: 0.2,
+  },
+  priorityBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2.5,
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  priorityBadgeText: {
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.6,
   },
   title: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 15,
+    fontWeight: '700',
     letterSpacing: -0.2,
+    marginTop: 2,
+    marginBottom: 4,
+    lineHeight: 20,
   },
-  metaLine: {
-    fontSize: 13,
+  bottomRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
   },
-  priorityText: {
-    fontWeight: '600',
-  },
-  statusLine: {
+  statusGroup: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
@@ -228,31 +284,28 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 13,
-    fontWeight: '500',
-  },
-  bullet: {
-    fontSize: 13,
-  },
-  overdueNote: {
-    fontSize: 13,
     fontWeight: '600',
   },
-  dateText: {
-    fontSize: 13,
-  },
-  rightAccessory: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginLeft: 10,
-    gap: 6,
-  },
   pendingCloud: {
-    fontSize: 17,
+    fontSize: 13,
+    fontWeight: '700',
+    marginLeft: 3,
+  },
+  overdueBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+    borderWidth: StyleSheet.hairlineWidth,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  overdueText: {
+    fontSize: 11,
     fontWeight: '700',
   },
-  chevron: {
-    fontSize: 22,
-    fontWeight: '300',
+  dueText: {
+    fontSize: 12,
+    fontWeight: '500',
   },
 });
 

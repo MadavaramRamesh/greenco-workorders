@@ -121,6 +121,13 @@ export default function OverviewScreen() {
           values={STATUS_OPTIONS}
           selectedValue={statusFilter}
           onChange={setStatusFilter}
+          renderLabel={(val) => {
+            if (val === 'All') return `All (${summaryStats.total})`;
+            if (val === 'Open') return `Open (${summaryStats.openCount})`;
+            if (val === 'In Progress') return `In Prog (${summaryStats.inProgressCount})`;
+            if (val === 'Completed') return `Done (${summaryStats.completedCount})`;
+            return val;
+          }}
         />
 
         {/* 3. Priority Menu & "Sorted by urgency" */}
@@ -143,21 +150,12 @@ export default function OverviewScreen() {
             </Text>
           </View>
         ) : filteredOrders.length > 0 ? (
-          <View
-            style={[
-              styles.listContainer,
-              {
-                backgroundColor: theme.card,
-                borderColor: theme.separator,
-              },
-            ]}
-          >
-            {filteredOrders.map((order, index) => (
+          <View style={styles.cardsContainer}>
+            {filteredOrders.map((order) => (
               <OrderRow
                 key={order.wo_id}
                 order={order}
                 onPress={handleOrderPress}
-                isLast={index === filteredOrders.length - 1}
               />
             ))}
           </View>
@@ -215,10 +213,8 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     gap: 16,
   },
-  listContainer: {
-    borderRadius: 16,
-    borderWidth: StyleSheet.hairlineWidth,
-    overflow: 'hidden',
+  cardsContainer: {
+    gap: 12,
   },
   loadingBox: {
     borderRadius: 16,
