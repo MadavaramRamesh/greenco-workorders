@@ -1,9 +1,33 @@
+import { useState } from 'react';
 import { Link, router } from 'expo-router';
-import { StyleSheet, Text, View, Pressable, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Pressable, ScrollView, ActivityIndicator } from 'react-native';
 import { useTheme } from '../src/domain/theme';
+import { runDevSaveTest } from '../src/data/workOrderService';
 
 export default function OverviewScreen() {
   const theme = useTheme();
+  const [isRunningDevTest, setIsRunningDevTest] = useState(false);
+  const [devTestOutput, setDevTestOutput] = useState<string | null>(null);
+
+  const handleRunDevTest = async () => {
+    setIsRunningDevTest(true);
+    setDevTestOutput(null);
+    try {
+      const result = await runDevSaveTest();
+      setDevTestOutput(
+        `✓ Dev test completed successfully!\n` +
+        `• Validation check: ${result.validationPassed ? 'PASSED' : 'FAILED'}\n` +
+        `• Update order check: ${result.updatePassed ? 'PASSED (rev: ' + result.savedOrder?.revision + ', pending_sync: 1)' : 'FAILED'}\n` +
+        `• Create order check: ${result.createPassed ? 'PASSED (' + result.createdOrder?.wo_id + ')' : 'FAILED'}\n` +
+        `• Outbox rows in DB: ${result.outboxCount}\n` +
+        `Check terminal / console logs for full outbox rows and payloads.`
+      );
+    } catch (err: any) {
+      setDevTestOutput(`✗ Error running dev test: ${err?.message ?? err}`);
+    } finally {
+      setIsRunningDevTest(false);
+    }
+  };
 
   return (
     <ScrollView
@@ -11,10 +35,40 @@ export default function OverviewScreen() {
       contentContainerStyle={styles.content}
     >
       <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.separator }]}>
-        <Text style={[styles.cardTitle, { color: theme.text }]}>Overview Screen (Placeholder)</Text>
+        <Text style={[styles.cardTitle, { color: theme.text }]}>Step 3: Repositories & Save Logic</Text>
         <Text style={[styles.cardSubtitle, { color: theme.textSecondary }]}>
           Theme active: {theme.scheme.toUpperCase()} mode ({theme.isDark ? 'Dark tokens' : 'Light tokens'})
         </Text>
+      </View>
+
+      {/* Dev test runner card */}
+      <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.brand }]}>
+        <Text style={[styles.cardTitle, { color: theme.brand }]}>Dev Test: Save & Outbox Verification</Text>
+        <Text style={[styles.cardSubtitle, { color: theme.textSecondary, marginBottom: 12 }]}>
+          Executes validation check, updates WO-1001, creates a new order, and logs outbox rows and payloads.
+        </Text>
+
+        <Pressable
+          style={[styles.primaryButton, { backgroundColor: theme.brand }]}
+          onPress={handleRunDevTest}
+          disabled={isRunningDevTest}
+          accessibilityRole="button"
+          accessibilityLabel="Run Dev Save and Outbox Test"
+        >
+          {isRunningDevTest ? (
+            <ActivityIndicator color={theme.brandText} />
+          ) : (
+            <Text style={[styles.primaryButtonText, { color: theme.brandText }]}>
+              ▶ Run Dev Save & Outbox Test
+            </Text>
+          )}
+        </Pressable>
+
+        {devTestOutput ? (
+          <View style={[styles.outputBox, { backgroundColor: theme.isDark ? '#1c1c1e' : '#f2f2f7' }]}>
+            <Text style={[styles.outputText, { color: theme.text }]}>{devTestOutput}</Text>
+          </View>
+        ) : null}
       </View>
 
       <View style={styles.section}>
@@ -87,6 +141,16 @@ const styles = StyleSheet.create({
   cardSubtitle: {
     fontSize: 14,
   },
+  outputBox: {
+    marginTop: 12,
+    padding: 12,
+    borderRadius: 8,
+  },
+  outputText: {
+    fontSize: 13,
+    fontFamily: 'System',
+    lineHeight: 18,
+  },
   section: {
     borderRadius: 16,
     overflow: 'hidden',
@@ -139,4 +203,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-
